@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BackendLetsMeet.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BackendLetsMeet.Controllers
@@ -10,6 +11,14 @@ namespace BackendLetsMeet.Controllers
     [ApiController]
     public class ValuesController : ControllerBase
     {
+        private readonly IEvent eventRepository;
+
+        public ValuesController(IEvent _eventRepository)
+        {
+            eventRepository = _eventRepository;
+        }
+
+
         // GET api/values
         [HttpGet]
         public ActionResult<IEnumerable<string>> Get()
