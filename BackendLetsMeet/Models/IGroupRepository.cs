@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace BackendLetsMeet.Models
 {
-    interface IGroup
+    interface IGroupRepositoryp
     {
         Group GetGroup(string id);
         IEnumerable<Group> GetGroups();

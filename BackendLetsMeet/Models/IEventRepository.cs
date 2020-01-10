@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace BackendLetsMeet.Models
 {
-    public interface IEvent
+    public interface IEventRepository
     {
         Event GetEvent(string id);
         IEnumerable<Event> GetEvents();

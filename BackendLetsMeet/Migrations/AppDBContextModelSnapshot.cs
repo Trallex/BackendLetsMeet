@@ -21,7 +21,7 @@ namespace BackendLetsMeet.Migrations
 
             modelBuilder.Entity("BackendLetsMeet.Models.Event", b =>
                 {
-                    b.Property<int>("IdEvent")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -29,7 +29,7 @@ namespace BackendLetsMeet.Migrations
 
                     b.Property<DateTime>("EndTime");
 
-                    b.Property<int>("IdGroup");
+                    b.Property<int>("GroupId");
 
                     b.Property<string>("Localiztion");
 
@@ -37,20 +37,22 @@ namespace BackendLetsMeet.Migrations
 
                     b.Property<DateTime>("StartTime");
 
-                    b.HasKey("IdEvent");
+                    b.HasKey("Id");
 
                     b.ToTable("Events");
                 });
 
             modelBuilder.Entity("BackendLetsMeet.Models.Group", b =>
                 {
-                    b.Property<int>("IdGroup")
+                    b.Property<int>("GroupId")
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<string>("InvId");
+
                     b.Property<string>("Name");
 
-                    b.HasKey("IdGroup");
+                    b.HasKey("GroupId");
 
                     b.ToTable("Groups");
                 });
@@ -225,9 +227,9 @@ namespace BackendLetsMeet.Migrations
                 {
                     b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
 
-                    b.Property<int?>("GroupIdGroup");
+                    b.Property<int?>("GroupId");
 
-                    b.HasIndex("GroupIdGroup");
+                    b.HasIndex("GroupId");
 
                     b.HasDiscriminator().HasValue("User");
                 });
@@ -279,9 +281,9 @@ namespace BackendLetsMeet.Migrations
 
             modelBuilder.Entity("BackendLetsMeet.Models.User", b =>
                 {
-                    b.HasOne("BackendLetsMeet.Models.Group")
+                    b.HasOne("BackendLetsMeet.Models.Group", "Group")
                         .WithMany("Members")
-                        .HasForeignKey("GroupIdGroup");
+                        .HasForeignKey("GroupId");
                 });
 #pragma warning restore 612, 618
         }

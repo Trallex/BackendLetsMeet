@@ -8,7 +8,7 @@ namespace BackendLetsMeet.Models
 {
     public class User : IdentityUser
     {
-        
-
+        public ICollection<GroupUser> GroupUsers { get; set; }
+        public ICollection<Days> Days { get; set; }
     }
 }

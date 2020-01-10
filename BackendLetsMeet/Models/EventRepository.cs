@@ -5,13 +5,14 @@ using System.Threading.Tasks;
 
 namespace BackendLetsMeet.Models
 {
-    public class SQLEventRepository : IEvent
+    public class EventRepository : IEventRepository
     {
         private readonly AppDBContext context;
 
-        public SQLEventRepository(AppDBContext context)
+        public EventRepository(AppDBContext context)
         {
             this.context = context;
+            context.Database.EnsureCreated();
         }
         public Event Add(Event myEvent)
         {

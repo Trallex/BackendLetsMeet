@@ -5,14 +5,15 @@ using System.Threading.Tasks;
 
 namespace BackendLetsMeet.Models
 {
-    public class SQLGroupRepository : IGroup
+    public class GroupRepository : IGroupRepositoryp
     {
 
         private readonly AppDBContext context;
 
-        public SQLGroupRepository(AppDBContext context)
+        public GroupRepository(AppDBContext context)
         {
             this.context = context;
+            context.Database.EnsureCreated();
         }
         public Group Add(Group group)
         {

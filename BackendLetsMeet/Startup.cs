@@ -28,9 +28,10 @@ namespace BackendLetsMeet
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContextPool<AppDBContext>(options => options.UseSqlServer(Configuration.GetConnectionString("LetsMeetDBConnection")));
-
-            services.AddScoped<IEvent, SQLEventRepository>();
-            services.AddScoped<IGroup, SQLGroupRepository>();
+            
+            services.AddScoped<IEventRepository, EventRepository>();
+            services.AddScoped<IGroupRepositoryp, GroupRepository>();
+            services.AddScoped<IDaysRepository, DaysRepository>();
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             
@@ -48,9 +49,17 @@ namespace BackendLetsMeet
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+            using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetService<AppDBContext>();
+                context.Database.EnsureCreated();
+            }
 
             app.UseHttpsRedirection();
-            app.UseMvc();
+            app.UseMvc(routes =>
+            {
+                routes.MapRoute("default", "{controller=Values}/{action=Tos}");
+            });
         }
     }
 }
