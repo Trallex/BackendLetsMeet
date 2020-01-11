@@ -10,5 +10,6 @@ namespace BackendLetsMeet.Models
     {
         public ICollection<GroupUser> GroupUsers { get; set; }
         public ICollection<Days> Days { get; set; }
+        public ICollection<IsGoing> IsGoing { get; set; }
     }
 }

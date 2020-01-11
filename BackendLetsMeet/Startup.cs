@@ -6,6 +6,7 @@ using BackendLetsMeet.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -28,7 +29,10 @@ namespace BackendLetsMeet
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContextPool<AppDBContext>(options => options.UseSqlServer(Configuration.GetConnectionString("LetsMeetDBConnection")));
-            
+
+            services.AddIdentity<User, IdentityRole>()
+                .AddEntityFrameworkStores<AppDBContext>();
+
             services.AddScoped<IEventRepository, EventRepository>();
             services.AddScoped<IGroupRepositoryp, GroupRepository>();
             services.AddScoped<IDaysRepository, DaysRepository>();
@@ -56,6 +60,7 @@ namespace BackendLetsMeet
             }
 
             app.UseHttpsRedirection();
+            app.UseAuthentication();
             app.UseMvc(routes =>
             {
                 routes.MapRoute("default", "{controller=Values}/{action=Tos}");

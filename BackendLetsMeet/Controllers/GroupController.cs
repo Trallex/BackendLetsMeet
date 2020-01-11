@@ -12,6 +12,10 @@ namespace BackendLetsMeet.Controllers
     [ApiController]
     public class GroupController : ControllerBase
     {
+        public GroupController()
+        {
+
+        }
         [HttpGet]
         public IActionResult List(string userId)
         {
@@ -68,11 +72,17 @@ namespace BackendLetsMeet.Controllers
             //return users and their free days
             return StatusCode(200);
         }
+        [HttpGet]
+        public IActionResult Event(string userId)
+        {
+            //return list of events for user
+            return StatusCode(200);
+        }
 
         [HttpGet]
         public IActionResult Event(string userId, string groupId)
         {
-            //return list of events
+            //return list of events for group
             return StatusCode(200);
         }
         [HttpPost]

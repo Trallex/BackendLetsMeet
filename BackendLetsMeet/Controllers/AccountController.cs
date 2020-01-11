@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BackendLetsMeet.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
@@ -12,23 +13,47 @@ namespace BackendLetsMeet.Controllers
     [ApiController]
     public class AccountController : ControllerBase
     {
-        private readonly IEventRepository eventRepository;
+        private readonly UserManager<User> userManager;
+        private readonly SignInManager<User> signInManager;
 
-        public AccountController(IEventRepository _eventRepository)
+        public AccountController(UserManager<User> userManager,
+                                 SignInManager<User> signInManager)
         {
-            eventRepository = _eventRepository;
+            this.userManager = userManager;
+            this.signInManager = signInManager;
         }
 
         [HttpGet]
-        public IActionResult Login(string id, string password)
+        public async Task<IActionResult> Login(string userName, string password)
         {
-            return StatusCode(200);
+
+            var user = await userManager.FindByNameAsync(userName);
+            if(user != null)
+            {
+                var result = await signInManager.PasswordSignInAsync(user, password, isPersistent: false, false);
+                if(result.Succeeded)
+                {
+                    return Ok();
+                }
+            }
+            return BadRequest("Wrong username or password.");
         }
         
         [HttpGet]
-        public IActionResult Register(string username, string mail, string password)
+        public async Task<IActionResult> Register(string username, string mail, string password)
         {
-            return StatusCode(200);
+            var user = new User
+            {
+                UserName = username,
+                Email = mail
+            };
+            var result = await userManager.CreateAsync(user, password);
+            if(result.Succeeded)
+            {
+                await signInManager.SignInAsync(user, isPersistent: false);
+                return Ok();
+            }
+            return BadRequest(result.Errors);
         }
 
         [HttpGet]

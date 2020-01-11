@@ -7,24 +7,40 @@ namespace BackendLetsMeet.Models
 {
     public class DaysRepository : IDaysRepository
     {
+        private readonly AppDBContext context;
+        public DaysRepository(AppDBContext context)
+        {
+            this.context = context;
+            context.Database.EnsureCreated();
+        }
+
         public Days Add(Days days)
         {
-            throw new NotImplementedException();
+            context.Days.Add(days);
+            context.SaveChanges();
+            return days;
         }
 
         public Days Delete(string id)
         {
-            throw new NotImplementedException();
+            Days days = context.Days.Find(id);
+            if (days != null)
+            {
+                context.Days.Remove(days);
+                context.SaveChanges();
+            }
+            
+            return days;
         }
 
         public List<Days> GetDays(string userId, string groupId)
         {
-            throw new NotImplementedException();
+            return context.Days.Where(g => g.GroupId == Int32.Parse(groupId)).Where( u => u.UserId == userId).ToList();
         }
 
         public List<Days> GetGroupDays(string groupId)
         {
-            throw new NotImplementedException();
+            return context.Days.Where(g => g.GroupId == Int32.Parse(groupId)).ToList();
         }
     }
 }
