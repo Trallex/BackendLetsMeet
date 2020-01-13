@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace BackendLetsMeet.Models
 {
-    interface IDaysRepository
+    public interface IDaysRepository
     {
         List<Days> GetDays(string userId, string groupId);
         List<Days> GetGroupDays(string groupId);

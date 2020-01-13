@@ -5,10 +5,11 @@ using System.Threading.Tasks;
 
 namespace BackendLetsMeet.Models
 {
-    interface IIsGoingRepository
+    public interface IIsGoingRepository
     {
         IsGoing Create(IsGoing isGoing);
-        List<IsGoing> FindUsers(int eventId);
+        List<IsGoing> FindUsers(string eventId);
+        
         
     }
 }

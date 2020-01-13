@@ -37,9 +37,14 @@ namespace BackendLetsMeet.Models
             return context.Events.Find(id);
         }
 
-        public IEnumerable<Event> GetEvents()
+        public IEnumerable<Event> GetGroupEvents(string groupId)
         {
-            return context.Events;
+            return context.Events.Where(e => e.GroupId == groupId).ToList();
+        }
+
+        public IEnumerable<Event> GetUserEvents(string userId)
+        {
+            return context.Events.Where(e => e.GroupId == groupId).ToList();
         }
 
         public Event Update(Event eventChanges)

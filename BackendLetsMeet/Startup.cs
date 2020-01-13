@@ -34,8 +34,10 @@ namespace BackendLetsMeet
                 .AddEntityFrameworkStores<AppDBContext>();
 
             services.AddScoped<IEventRepository, EventRepository>();
-            services.AddScoped<IGroupRepositoryp, GroupRepository>();
+            services.AddScoped<IGroupRepository, GroupRepository>();
             services.AddScoped<IDaysRepository, DaysRepository>();
+            services.AddScoped<IIsGoingRepository, IsGoingRepository>();
+            services.AddScoped<IGroupUserRepository, GroupUserRepository>();
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             

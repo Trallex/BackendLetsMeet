@@ -22,7 +22,7 @@ namespace BackendLetsMeet.Models
             return isGoing;
         }
 
-        public List<IsGoing> FindUsers(int eventId)
+        public List<IsGoing> FindUsers(string eventId)
         {
             return context.IsGoings.Where(s => s.EventId == eventId).ToList();
         }

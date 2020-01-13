@@ -15,6 +15,7 @@ namespace BackendLetsMeet.Models
         }
         public DbSet<Event> Events { get; set; }
         public DbSet<Group> Groups { get; set; }
+        public DbSet<GroupUser> GroupUsers { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Days> Days { get; set; }
         public DbSet<IsGoing> IsGoings { get; set; }

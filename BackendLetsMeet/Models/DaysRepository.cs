@@ -35,12 +35,12 @@ namespace BackendLetsMeet.Models
 
         public List<Days> GetDays(string userId, string groupId)
         {
-            return context.Days.Where(g => g.GroupId == Int32.Parse(groupId)).Where( u => u.UserId == userId).ToList();
+            return context.Days.Where(g => g.GroupId == groupId).Where( u => u.UserId == userId).ToList();
         }
 
         public List<Days> GetGroupDays(string groupId)
         {
-            return context.Days.Where(g => g.GroupId == Int32.Parse(groupId)).ToList();
+            return context.Days.Where(g => g.GroupId == groupId).ToList();
         }
     }
 }

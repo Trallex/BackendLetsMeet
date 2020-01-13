@@ -9,8 +9,8 @@ namespace BackendLetsMeet.Models
 {
     public class Group
     {
-        public int GroupId { get; set; }
-        public int EventId { get; set; }
+        public string GroupId { get; set; }
+        public string EventId { get; set; }
         public ICollection<Event >Events { get; set; }
         public ICollection<GroupUser> GroupUsers { get; set;}
         public ICollection<Days> Days { get; set; }
