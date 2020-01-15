@@ -40,7 +40,7 @@ namespace BackendLetsMeet.Controllers
             this.groupUserRepository = groupUserRepository;
         }
 
-        //get users group
+        //get users groups
         [HttpGet]
         public IActionResult ListGroup(string userId)
         {
@@ -140,8 +140,14 @@ namespace BackendLetsMeet.Controllers
         [HttpGet]
         public IActionResult GetFreeTime(string userId, string groupId)
         {
-            var x = freeTimeRepository.GetGroupFreeTime(groupId);
-            return StatusCode(200);
+            var users = groupUserRepository.GetGroupUsers(groupId);
+            if(users.Where(u => u.UserId == userId) != null)
+            {
+                var freeTime = freeTimeRepository.GetGroupFreeTime(groupId);
+                var result = JsonConvert.SerializeObject(freeTime);
+                return Ok(result);
+            }            
+            return BadRequest("User not in th group");
         }
 
         //add free time AND RETURN object
