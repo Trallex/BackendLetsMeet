@@ -13,7 +13,7 @@ namespace BackendLetsMeet.Models
         public string EventId { get; set; }
         public ICollection<Event >Events { get; set; }
         public ICollection<GroupUser> GroupUsers { get; set;}
-        public ICollection<Days> Days { get; set; }
+        public ICollection<FreeTime> FreeTimes { get; set; }
         public string Name { get; set; }
         public string InvId { get; set; }
     }

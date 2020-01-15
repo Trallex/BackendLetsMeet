@@ -5,8 +5,9 @@ using System.Threading.Tasks;
 
 namespace BackendLetsMeet.Models
 {
-    public class Days
+    public class FreeTime
     {
+        public string Id { get; set; }
         public string UserId { get; set; }
         public User User { get; set; }
         public string GroupId { get; set; }

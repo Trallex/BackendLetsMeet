@@ -35,7 +35,7 @@ namespace BackendLetsMeet
 
             services.AddScoped<IEventRepository, EventRepository>();
             services.AddScoped<IGroupRepository, GroupRepository>();
-            services.AddScoped<IDaysRepository, DaysRepository>();
+            services.AddScoped<IFreeTimeRepository, FreeTimeRepository>();
             services.AddScoped<IIsGoingRepository, IsGoingRepository>();
             services.AddScoped<IGroupUserRepository, GroupUserRepository>();
 

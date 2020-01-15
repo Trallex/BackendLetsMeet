@@ -41,7 +41,7 @@ namespace BackendLetsMeet.Models
             return groupUser;
         }
 
-        public List<GroupUser> GetGroupUser(string groupId)
+        public IEnumerable<GroupUser> GetGroupUsers(string groupId)
         {
            return context.GroupUsers.Where(gu => gu.GroupId == groupId).ToList();
         }

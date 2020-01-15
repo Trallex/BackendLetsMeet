@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BackendLetsMeet.DTOs;
 using BackendLetsMeet.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -21,40 +22,38 @@ namespace BackendLetsMeet.Controllers
         private readonly IEventRepository eventRepository;
         private readonly IGroupRepository groupRepository;
         private readonly IIsGoingRepository isGoingRepository;
-        private readonly IDaysRepository daysRepository;
+        private readonly IFreeTimeRepository freeTimeRepository;
         private readonly IGroupUserRepository groupUserRepository;
 
         public GroupController(UserManager<User> userManager,
                                IEventRepository eventRepository,
                                IGroupRepository groupRepository,
                                IIsGoingRepository isGoingRepository,
-                               IDaysRepository daysRepository,
+                               IFreeTimeRepository freeTimeRepository,
                                IGroupUserRepository groupUserRepository)
         {
             this.userManager = userManager;
             this.eventRepository = eventRepository;
             this.groupRepository = groupRepository;
             this.isGoingRepository = isGoingRepository;
-            this.daysRepository = daysRepository;
+            this.freeTimeRepository = freeTimeRepository;
             this.groupUserRepository = groupUserRepository;
         }
 
+        //get users group
         [HttpGet]
-        public IActionResult List(string userId)
+        public IActionResult ListGroup(string userId)
         {
-            //group[uuid, nazwa]
             var groups = groupRepository.GetUserGroups(userId);
             var result = JsonConvert.SerializeObject(groups);
             return Ok(result);
                        
         }
 
+        //create and return group
         [HttpPost]
-        public async  Task<IActionResult> Create(string userId, string groupName)
+        public async  Task<IActionResult> CreateGroup(string userId, string groupName)
         {
-
-            //create and return group
-
             User user = await userManager.FindByIdAsync(userId);
             if (user != null)
             {
@@ -62,7 +61,7 @@ namespace BackendLetsMeet.Controllers
                 {
                     GroupId = Guid.NewGuid().ToString(),
                     Events = new List<Event>(),
-                    Days = new List<Days>(),
+                    FreeTimes = new List<FreeTime>(),
                     GroupUsers = new List<GroupUser>(),
                     Name = groupName,
                     InvId = Guid.NewGuid().ToString()
@@ -87,10 +86,10 @@ namespace BackendLetsMeet.Controllers
             
         }
 
+        //return group
         [HttpGet]
-        public IActionResult Info(string userId, string groupId)
+        public IActionResult GetGroup(string userId, string groupId)
         {
-            //return group
             Group group = groupRepository.GetGroup(groupId);
             if(group != null)
             {
@@ -98,12 +97,12 @@ namespace BackendLetsMeet.Controllers
                 return Ok(result);
             }
             return BadRequest("Group not found.");
-        }   
+        }
 
+        //ADD USER TO GROUP
         [HttpPost]
         public async Task<IActionResult> Join(string userId, string idInv)
         {
-            //ADD USER TO GROUP
             Group group = groupRepository.GetGropByInvLink(idInv);
             User user = await userManager.FindByIdAsync(userId);
             if(user != null && group != null)
@@ -122,10 +121,10 @@ namespace BackendLetsMeet.Controllers
             return BadRequest("Wrong User or idInv.");
         }
 
+        //REMOVE USER FROM GROUP
         [HttpGet]
         public async Task<IActionResult> Leave(string userId, string groupId)
         {
-            //REMOVE USER FROM GROUP
 
             Group group = groupRepository.GetGroup(groupId);
             User user = await userManager.FindByIdAsync(userId);
@@ -137,57 +136,118 @@ namespace BackendLetsMeet.Controllers
             return BadRequest("User or Group not found.");
         }
 
+        //return users and their free time
         [HttpGet]
-        public IActionResult Days(string userId, string groupId, DateTime start, DateTime end)
+        public IActionResult GetFreeTime(string userId, string groupId)
         {
-            //return users and their free days
+            var x = freeTimeRepository.GetGroupFreeTime(groupId);
             return StatusCode(200);
         }
 
+        //add free time AND RETURN object
         [HttpPost]
-        public async Task<IActionResult> AddDays(string userId, string groupId, DateTime start, DateTime end)
+        public async Task<IActionResult> AddFreeTime(string userId, string groupId, DateTime start, DateTime end)
         {
-            //add busy days
-
             User user = await userManager.FindByIdAsync(userId);
             Group group = groupRepository.GetGroup(groupId);
-            
+                        
+
             if (user != null && group != null)
             {
-                Days days = new Days
+                bool freeTimeEdited = false;
+                FreeTime days = new FreeTime();
+                var timesInRepo = freeTimeRepository.GetFreeTime(userId, groupId);
+
+                if(timesInRepo != null)
                 {
-                    EndTime = end,
-                    StartTime = start,
-                    User = user,
-                    UserId = user.Id,
-                    Group = group,
-                    GroupId = group.GroupId
-                };
-                daysRepository.Add(days);
-                return Ok();
+                    foreach(var time in timesInRepo)
+                    {
+                        if((time.StartTime < start && time.EndTime > start) 
+                            || (time.StartTime < end && time.EndTime > end))
+                        {
+                            days = time;
+                            days.EndTime = end;
+                            days.StartTime = start;
+                            freeTimeRepository.Delete(time.Id);
+                            freeTimeEdited = true;
+                        }
+                        else if (time.EndTime == start)
+                        {
+                            days = time;
+                            days.EndTime = end;
+                            freeTimeRepository.Delete(time.Id);
+                            freeTimeEdited = true;
+                        }
+                        else if (time.StartTime == end)
+                        {
+                            days = time;
+                            days.StartTime = start;
+                            freeTimeRepository.Delete(time.Id);
+                            freeTimeEdited = true;
+                        }
+                    }
+                }
+
+                if(!freeTimeEdited)
+                {
+                    days = new FreeTime
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        EndTime = end,
+                        StartTime = start,
+                        User = user,
+                        UserId = user.Id,
+                        Group = group,
+                        GroupId = group.GroupId
+                    };
+                }
+                
+                freeTimeRepository.Add(days);
+
+                var result = JsonConvert.SerializeObject(days);
+                return Ok(result);
             }
 
             return BadRequest("User or Group not found.");
         }
 
-        [HttpGet]
-        public IActionResult MyDays(string userId, string groupId, DateTime start, DateTime end)
+        //Delete free time if its the users one
+        [HttpPost]
+        public async Task<IActionResult> DeleteFreeTime(string userId, string freeTimeId)
         {
-            //return users and their free days
+            User user = await userManager.FindByIdAsync(userId);
+            if(user != null)
+            {
+                var freeTime = freeTimeRepository.GetById(freeTimeId);
+                if(user.Id == freeTime.UserId)
+                {
+                    freeTimeRepository.Delete(freeTimeId);
+                    return Ok();
+                }
+                return BadRequest("Could not found free time matching for this user.");
+            }
+            return BadRequest("User not found.");
+        }
+
+        //return users free time for group
+        [HttpGet]
+        public IActionResult MyFreeTime(string userId, string groupId, DateTime start, DateTime end)
+        {            
             Group group = groupRepository.GetGroup(groupId);
             if(group != null)
             {
-                var days = daysRepository.GetGroupDays(groupId);
+                var freeTime = freeTimeRepository.GetGroupFreeTime(groupId);
 
-                var result = JsonConvert.SerializeObject(days);
+                var result = JsonConvert.SerializeObject(freeTime);
                 return Ok(result);
             }
             return BadRequest("Group not found.");
         }
+
+        //return list of events for user
         [HttpGet]
-        public async Task<IActionResult> Event(string userId)
+        public async Task<IActionResult> GetUserEvent(string userId)
         {
-            //return list of events for user
             List<Event> events = new List<Event>();
 
             User user = await userManager.FindByIdAsync(userId);
@@ -207,10 +267,10 @@ namespace BackendLetsMeet.Controllers
             return BadRequest("User not found.");
         }
 
+        //return list of events for group
         [HttpGet]
-        public async Task<IActionResult> Event(string userId, string groupId)
+        public IActionResult GetGroupEvent(string userId, string groupId)
         {
-            //return list of events for group
             List<Event> events = new List<Event>();
 
             Group group = groupRepository.GetGroup(groupId);
@@ -225,17 +285,29 @@ namespace BackendLetsMeet.Controllers
             }
             return BadRequest("Group not found.");
         }
-        
+
+        //create event
         [HttpPost]
-        public async Task<IActionResult> Event(string userId, string groupId, Event newEvent)
+        public async Task<IActionResult> CreateEvent(string userId, string groupId, [FromBody]EventEntity newEvent)
         {
-            //create event
             User user = await userManager.FindByIdAsync(userId);
             Group group = groupRepository.GetGroup(groupId);
             
             if (user != null && group != null)
             {
-                eventRepository.Add(newEvent);
+                Event createdEvent = new Event
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    GroupId = groupId,
+                    Group = group, 
+                    Name = newEvent.Name,
+                    Description = newEvent.Description,
+                    StartTime = newEvent.StartTime,
+                    EndTime = newEvent.EndTime,
+                    Localiztion = newEvent.Localiztion
+
+                };
+                eventRepository.Add(createdEvent);
                 var groupUsers = groupUserRepository.GetGroupUsers(groupId);
                 foreach(GroupUser groupUser in groupUsers)
                 {
@@ -245,11 +317,10 @@ namespace BackendLetsMeet.Controllers
                     {
                         isGoing = new IsGoing
                         {
-                            Id = Guid.NewGuid().ToString(),
                             UserId = currentUser.Id,
                             User = currentUser,
-                            Event = newEvent,
-                            EventId = newEvent.Id,
+                            Event = createdEvent,
+                            EventId = createdEvent.Id,
                             Response = true
                         };
                     }
@@ -257,11 +328,10 @@ namespace BackendLetsMeet.Controllers
                     {
                         isGoing = new IsGoing
                         {
-                            Id = Guid.NewGuid().ToString(),
                             UserId = currentUser.Id,
                             User = currentUser,
-                            Event = newEvent,
-                            EventId = newEvent.Id
+                            Event = createdEvent,
+                            EventId = createdEvent.Id
                         };
                     }
                     isGoingRepository.Create(isGoing);
@@ -271,10 +341,10 @@ namespace BackendLetsMeet.Controllers
             return BadRequest("Group or User not found.");
         }
 
-       [HttpGet]
+        //return event
+        [HttpGet]
         public IActionResult EventInfo(string userId, string eventId)
         {
-            //return event
            Event myEvent  = eventRepository.GetEvent(eventId);
             if(myEvent != null)
             {
