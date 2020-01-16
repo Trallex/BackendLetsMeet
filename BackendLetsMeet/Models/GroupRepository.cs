@@ -35,14 +35,14 @@ namespace BackendLetsMeet.Models
 
         public Group GetGropByInvLink(string invLink)
         {
-            return context.Groups.Where(g => g.InvId == invLink).FirstOrDefault();             
+            return context.Groups.Where(g => g.InvId == invLink).FirstOrDefault();
         }
 
         public Group GetGroup(string id)
         {
             return context.Groups.Find(id);
         }
-
+        
         public IEnumerable<Group> GetGroups()
         {
             return context.Groups;

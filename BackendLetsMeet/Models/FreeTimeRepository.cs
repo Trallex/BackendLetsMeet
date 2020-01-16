@@ -38,15 +38,16 @@ namespace BackendLetsMeet.Models
             return context.FreeTime.Find(id);
         }
 
-        public List<FreeTime> GetFreeTime(string userId, string groupId)
+        public List<FreeTime> GetUserFreeTime(string userId)
         {
             DateTime now = DateTime.Now;
-            return context.FreeTime.Where(g => g.GroupId == groupId).Where( u => u.UserId == userId).Where(ft => ft.StartTime > now).ToList();
+            return context.FreeTime.Where( u => u.UserId == userId).Where(ft => ft.EndTime > now).ToList();
         }
 
         public List<FreeTime> GetGroupFreeTime(string groupId)
         {
-            return context.FreeTime.Where(g => g.GroupId == groupId).ToList();
+            DateTime now = DateTime.Now;
+            return context.FreeTime.Where(g => g.GroupId == groupId).Where(ft => ft.EndTime > now).ToList();
         }
     }
 }

@@ -39,7 +39,7 @@ namespace BackendLetsMeet.Controllers
             return BadRequest("Wrong username or password.");
         }
         
-        [HttpGet]
+        [HttpPost]
         public async Task<IActionResult> Register(string username, string mail, string password)
         {
             var user = new User
@@ -48,14 +48,40 @@ namespace BackendLetsMeet.Controllers
                 Email = mail
             };
             var result = await userManager.CreateAsync(user, password);
-            if(result.Succeeded)
+            if (result.Succeeded)
             {
                 await signInManager.SignInAsync(user, isPersistent: false);
-                return Ok();
+                var x = await userManager.GetUserAsync(User);
+                //var userId = JsonConvert.SerializeObject(x.Id);
+                return Ok(x);
+
+              // var 
             }
             return BadRequest(result.Errors);
         }
 
+        [HttpPost]
+        public async Task<IActionResult> DeleteAccount(string userId)
+        {
+            var user = await userManager.GetUserAsync(User);
+            if (user.Id == userId)
+            {
+                var action = await userManager.DeleteAsync(user);
+                if (action.Succeeded)
+                {
+                    return Ok();
+                }
+            }            
+            return BadRequest();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Logout()
+        {
+            await signInManager.SignOutAsync();
+            return Ok();
+            
+        }
         [HttpGet]
         public ActionResult<string> Tos()
         {

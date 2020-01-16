@@ -157,12 +157,11 @@ namespace BackendLetsMeet.Controllers
             User user = await userManager.FindByIdAsync(userId);
             Group group = groupRepository.GetGroup(groupId);
                         
-
             if (user != null && group != null)
             {
                 bool freeTimeEdited = false;
                 FreeTime days = new FreeTime();
-                var timesInRepo = freeTimeRepository.GetFreeTime(userId, groupId);
+                var timesInRepo = freeTimeRepository.GetUserFreeTime(userId);//, groupId);
 
                 if(timesInRepo != null)
                 {
@@ -170,6 +169,14 @@ namespace BackendLetsMeet.Controllers
                     {
                         if((time.StartTime < start && time.EndTime > start) 
                             || (time.StartTime < end && time.EndTime > end))
+                        {
+                            days = time;
+                            days.EndTime = end;
+                            days.StartTime = start;
+                            freeTimeRepository.Delete(time.Id);
+                            freeTimeEdited = true;
+                        }
+                        else if(time.StartTime > start && time.EndTime < end)
                         {
                             days = time;
                             days.EndTime = end;
@@ -237,17 +244,17 @@ namespace BackendLetsMeet.Controllers
 
         //return users free time for group
         [HttpGet]
-        public IActionResult MyFreeTime(string userId, string groupId, DateTime start, DateTime end)
-        {            
-            Group group = groupRepository.GetGroup(groupId);
-            if(group != null)
+        public async Task<IActionResult> MyFreeTime(string userId)
+        {
+            User user = await userManager.FindByIdAsync(userId);
+            if (user != null)
             {
-                var freeTime = freeTimeRepository.GetGroupFreeTime(groupId);
+                var freeTime = freeTimeRepository.GetUserFreeTime(userId);
 
                 var result = JsonConvert.SerializeObject(freeTime);
                 return Ok(result);
             }
-            return BadRequest("Group not found.");
+            return BadRequest("User not found.");
         }
 
         //return list of events for user
@@ -359,5 +366,7 @@ namespace BackendLetsMeet.Controllers
             }
             return BadRequest("Event not found.");
         }
+    
+        //odpowiedzi w evencie
     }
 }
