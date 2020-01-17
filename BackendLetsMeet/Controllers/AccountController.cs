@@ -51,7 +51,6 @@ namespace BackendLetsMeet.Controllers
                     var token = new JwtSecurityToken(
                           issuer: "smieszek",
                           audience: "readers",
-                          expires: DateTime.Now.AddDays(1),
                           signingCredentials: signingCredentials,
                           claims: claims
                         );
@@ -90,7 +89,6 @@ namespace BackendLetsMeet.Controllers
                 var token = new JwtSecurityToken(
                       issuer: "smieszek",
                       audience: "readers",
-                      expires: DateTime.Now.AddDays(1),
                       signingCredentials: signingCredentials,
                       claims: claims
                     );
