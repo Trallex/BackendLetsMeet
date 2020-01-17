@@ -48,7 +48,15 @@ namespace BackendLetsMeet.Controllers
             List<GroupEntity> groupEntities = new List<GroupEntity>();
             foreach(Group group in groups)
             {
-                groupEntities.Add(new GroupEntity(group));
+                List<UserEntity> userEntities = new List<UserEntity>();
+                var users = groupRepository.GetGroupUsers(group.GroupId);
+                foreach(var user in users)
+                {
+                    var freeTimes = freeTimeRepository.GetGroupUserFreeTime(group.GroupId, user.Id);
+                    userEntities.Add(new UserEntity(user, freeTimes));
+                }
+
+                groupEntities.Add(new GroupEntity(group, userEntities));
             }
             var result = JsonConvert.SerializeObject(groupEntities);
             return Ok(result);
@@ -74,8 +82,8 @@ namespace BackendLetsMeet.Controllers
                 GroupUser groupUser = new GroupUser
                 {
                     User = user,
-                    //UserId = user.Id,
-                    //GroupId = group.GroupId,
+                    UserId = user.Id,
+                    GroupId = group.GroupId,
                     Group = group
                 };
                 group.GroupUsers.Add(groupUser);
@@ -83,9 +91,9 @@ namespace BackendLetsMeet.Controllers
 
                 groupRepository.Add(group);
                 // groupUserRepository.Add(groupUser);
-                GroupEntity groupEntity = new GroupEntity(group);
-                var result = JsonConvert.SerializeObject(groupEntity);
-                return Ok(result);
+                //GroupEntity groupEntity = new GroupEntity(group);
+                //var result = JsonConvert.SerializeObject(groupEntity);
+                return Ok();
             }
 
             return BadRequest("User not found.");
@@ -120,7 +128,15 @@ namespace BackendLetsMeet.Controllers
                     Group = group,
                     GroupId = group.GroupId
                 };
-                groupUserRepository.Add(groupUser);
+                try
+                {
+                    groupUserRepository.Add(groupUser);
+                }
+                catch(Exception e)
+                {
+                    return BadRequest("User already present in the group.");
+                }
+                
                 return Ok();
             }
 
@@ -128,7 +144,7 @@ namespace BackendLetsMeet.Controllers
         }
 
         //REMOVE USER FROM GROUP
-        [HttpGet]
+        [HttpPost]
         public async Task<IActionResult> Leave(string userId, string groupId)
         {
 
@@ -149,9 +165,9 @@ namespace BackendLetsMeet.Controllers
             var users = groupUserRepository.GetGroupUsers(groupId);
             if(users.Where(u => u.UserId == userId) != null)
             {
-                var freeTime = freeTimeRepository.GetGroupFreeTime(groupId);
-                var result = JsonConvert.SerializeObject(freeTime);
-                return Ok(result);
+                // var freeTime = freeTimeRepository.GetGroupFreeTime(groupId);
+                // var result = JsonConvert.SerializeObject(freeTime);
+                return Ok();//result);
             }            
             return BadRequest("User not in th group");
         }
@@ -166,7 +182,11 @@ namespace BackendLetsMeet.Controllers
             if (user != null && group != null)
             {
                 bool freeTimeEdited = false;
-                FreeTime days = new FreeTime();
+                if(start.CompareTo(end) >= 0)
+                {
+                    return BadRequest("Event ends before it starts.");
+                }
+                FreeTime freeTime = new FreeTime();
                 var timesInRepo = freeTimeRepository.GetUserFreeTime(userId);//, groupId);
 
                 if(timesInRepo != null)
@@ -176,31 +196,31 @@ namespace BackendLetsMeet.Controllers
                         if((time.StartTime < start && time.EndTime > start) 
                             || (time.StartTime < end && time.EndTime > end))
                         {
-                            days = time;
-                            days.EndTime = end;
-                            days.StartTime = start;
+                            freeTime = time;
+                            freeTime.EndTime = end;
+                            freeTime.StartTime = start;
                             freeTimeRepository.Delete(time.Id);
                             freeTimeEdited = true;
                         }
                         else if(time.StartTime > start && time.EndTime < end)
                         {
-                            days = time;
-                            days.EndTime = end;
-                            days.StartTime = start;
+                            freeTime = time;
+                            freeTime.EndTime = end;
+                            freeTime.StartTime = start;
                             freeTimeRepository.Delete(time.Id);
                             freeTimeEdited = true;
                         }
                         else if (time.EndTime == start)
                         {
-                            days = time;
-                            days.EndTime = end;
+                            freeTime = time;
+                            freeTime.EndTime = end;
                             freeTimeRepository.Delete(time.Id);
                             freeTimeEdited = true;
                         }
                         else if (time.StartTime == end)
                         {
-                            days = time;
-                            days.StartTime = start;
+                            freeTime = time;
+                            freeTime.StartTime = start;
                             freeTimeRepository.Delete(time.Id);
                             freeTimeEdited = true;
                         }
@@ -209,7 +229,7 @@ namespace BackendLetsMeet.Controllers
 
                 if(!freeTimeEdited)
                 {
-                    days = new FreeTime
+                    freeTime = new FreeTime
                     {
                         Id = Guid.NewGuid().ToString(),
                         EndTime = end,
@@ -221,9 +241,9 @@ namespace BackendLetsMeet.Controllers
                     };
                 }
                 
-                freeTimeRepository.Add(days);
-
-                var result = JsonConvert.SerializeObject("lel");
+                freeTimeRepository.Add(freeTime);
+                FreeTimeEntity res = new FreeTimeEntity(freeTime);
+                var result = JsonConvert.SerializeObject(res);
                 return Ok(result);
             }
 
@@ -255,9 +275,20 @@ namespace BackendLetsMeet.Controllers
             User user = await userManager.FindByIdAsync(userId);
             if (user != null)
             {
-                var freeTime = freeTimeRepository.GetUserFreeTime(userId);
 
-                var result = JsonConvert.SerializeObject(freeTime);
+                List<GroupEntity> groupEntities = new List<GroupEntity>();
+
+                var groups = groupRepository.GetUserGroups(userId);
+                foreach (var group in groups)
+                {
+
+                    var groupFreeTime = freeTimeRepository.GetGroupUserFreeTime(group.GroupId, userId);
+                    UserEntity userEntity = new UserEntity(user, groupFreeTime);
+
+                    groupEntities.Add(new GroupEntity(group, new List<UserEntity> { userEntity }));
+                }
+
+                var result = JsonConvert.SerializeObject(groupEntities);
                 return Ok(result);
             }
             return BadRequest("User not found.");
@@ -265,10 +296,10 @@ namespace BackendLetsMeet.Controllers
 
         //return list of events for user
         [HttpGet]
-        public async Task<IActionResult> GetUserEvent(string userId)
+        public async Task<IActionResult> GetUserEvents(string userId)
         {
             List<Event> events = new List<Event>();
-
+            List<EventEntity> eventEntities = new List<EventEntity>();
             User user = await userManager.FindByIdAsync(userId);
 
             if(user != null)
@@ -279,8 +310,17 @@ namespace BackendLetsMeet.Controllers
                     var groupEvents = eventRepository.GetGroupEvents(group.GroupId);
                     events.AddRange(groupEvents);
                 }
-
-                var result = JsonConvert.SerializeObject(events);
+                foreach (var _event in events)
+                {
+                    var isGoingList = isGoingRepository.FindUsers(_event.Id);
+                    List<IsGoingEntity> isGoingEntities = new List<IsGoingEntity>();
+                    foreach(var isGoingListResponse in isGoingList)
+                    {
+                        isGoingEntities.Add(new IsGoingEntity(isGoingListResponse));
+                    }
+                    eventEntities.Add(new EventEntity(_event, isGoingEntities));
+                }
+                var result = JsonConvert.SerializeObject(eventEntities);
                 return Ok(result);
             }
             return BadRequest("User not found.");
@@ -288,7 +328,7 @@ namespace BackendLetsMeet.Controllers
 
         //return list of events for group
         [HttpGet]
-        public IActionResult GetGroupEvent(string userId, string groupId)
+        public IActionResult GetGroupEvents(string userId, string groupId)
         {
             List<Event> events = new List<Event>();
 

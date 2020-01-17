@@ -11,18 +11,14 @@ namespace BackendLetsMeet.DTOs
         public string Name { get; set; }
         public List<FreeTimeEntity> UserFreeTimes { get; set; }
 
-        public UserEntity(User user)
+        public UserEntity(User user, List<FreeTime> freeTimes)
         {
-            if (user != null)
+            UserFreeTimes = new List<FreeTimeEntity>();
+            Name = user.UserName;
+            foreach(FreeTime freeTime in freeTimes)
             {
-                Name = user.UserName;
-                if (user.FreeTime != null)
-                {
-                    foreach (FreeTime freeTime in user.FreeTime)
-                    {
-                        UserFreeTimes.Add(new FreeTimeEntity(freeTime));
-                    }
-                }
+                var x = new FreeTimeEntity(freeTime);
+                UserFreeTimes.Add(x);
             }
         }
     }

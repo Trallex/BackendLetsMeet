@@ -9,7 +9,7 @@ namespace BackendLetsMeet.Models
     {
         FreeTime GetById(string id);
         List<FreeTime> GetUserFreeTime(string userId);
-        List<FreeTime> GetGroupFreeTime(string groupId);
+        List<FreeTime> GetGroupUserFreeTime(string groupId, string userId);
         FreeTime Add(FreeTime freeTime);
         FreeTime Delete(string id);
     }

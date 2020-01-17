@@ -14,6 +14,7 @@ namespace BackendLetsMeet.Models
         Group Add(Group myGroup);
         Group Update(Group groupChanges);
         Group Delete(string id);
+        IEnumerable<User> GetGroupUsers(string groupId);
     }
 }
 

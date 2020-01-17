@@ -5,6 +5,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using BackendLetsMeet.DTOs;
 using BackendLetsMeet.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -54,9 +55,9 @@ namespace BackendLetsMeet.Controllers
                           signingCredentials: signingCredentials,
                           claims: claims
                         );
-
-                    return Ok(new JwtSecurityTokenHandler().WriteToken(token));
-
+                    string tokenString = new JwtSecurityTokenHandler().WriteToken(token).ToString();
+                    var resultOutput = JsonConvert.SerializeObject(new UserTokenEntity(tokenString, user));
+                    return Ok(resultOutput);
                 }
             }
             return BadRequest("Wrong username or password.");
@@ -93,8 +94,9 @@ namespace BackendLetsMeet.Controllers
                       signingCredentials: signingCredentials,
                       claims: claims
                     );
-                
-                return Ok(new JwtSecurityTokenHandler().WriteToken(token));
+                string tokenString = new JwtSecurityTokenHandler().WriteToken(token).ToString();
+                var resultOutput = JsonConvert.SerializeObject(new UserTokenEntity(tokenString, user));
+                return Ok(resultOutput);
                 // var 
             }
             return BadRequest(result.Errors);

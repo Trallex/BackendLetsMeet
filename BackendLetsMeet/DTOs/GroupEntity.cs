@@ -9,21 +9,18 @@ namespace BackendLetsMeet.DTOs
     public class GroupEntity
     {
         public string GroupId { get; set; }
-        public string Name { get; set; }
         public string InvId { get; set; }
-        public List<EventEntity> Events { get; set; }
+        public string Name { get; set; }
         public List<UserEntity> Users { get; set; }
+        
 
 
-        public GroupEntity(Group group)
+        public GroupEntity(Group group,List<UserEntity> users)
         {
             GroupId = group.GroupId;
             Name = group.Name;
-            InvId = group.InvId;       
-            foreach(GroupUser groupUser in group.GroupUsers)
-            {
-                Users.Add(new UserEntity(groupUser.User));
-            }
+            InvId = group.InvId;
+            Users = users;
         }
     }
 }

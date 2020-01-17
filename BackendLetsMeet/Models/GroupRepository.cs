@@ -21,7 +21,18 @@ namespace BackendLetsMeet.Models
             context.SaveChanges();
             return group;
         }
-
+           
+        public IEnumerable<User> GetGroupUsers(string groupId)
+        {
+            List<User> users = new List<User>();
+            var groupUsers = context.GroupUsers.Where(gu => gu.GroupId == groupId).ToList();
+            foreach(GroupUser groupUser in groupUsers)
+            {
+                var user = context.Users.Where(u => u.Id == groupUser.UserId).FirstOrDefault();
+                users.Add(user);
+            }
+            return users;
+        }
         public Group Delete(string id)
         {
             Group group = context.Groups.Find(id);

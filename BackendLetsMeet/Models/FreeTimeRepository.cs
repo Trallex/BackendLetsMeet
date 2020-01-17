@@ -23,7 +23,7 @@ namespace BackendLetsMeet.Models
 
         public FreeTime Delete(string id)
         {
-            FreeTime freeTime = context.FreeTime.Find(id);
+            FreeTime freeTime = context.FreeTime.Where(ft => ft.Id == id).FirstOrDefault(); ;
             if (freeTime != null)
             {
                 context.FreeTime.Remove(freeTime);
@@ -35,7 +35,7 @@ namespace BackendLetsMeet.Models
 
         public FreeTime GetById(string id)
         {
-            return context.FreeTime.Find(id);
+            return context.FreeTime.Where(ft => ft.Id == id).FirstOrDefault();
         }
 
         public List<FreeTime> GetUserFreeTime(string userId)
@@ -44,10 +44,12 @@ namespace BackendLetsMeet.Models
             return context.FreeTime.Where( u => u.UserId == userId).Where(ft => ft.EndTime > now).ToList();
         }
 
-        public List<FreeTime> GetGroupFreeTime(string groupId)
+        public List<FreeTime> GetGroupUserFreeTime(string groupId, string userId)
         {
             DateTime now = DateTime.Now;
-            return context.FreeTime.Where(g => g.GroupId == groupId).Where(ft => ft.EndTime > now).ToList();
+            var x = context.FreeTime.Where(g => g.GroupId == groupId).Where(u => u.UserId == userId);
+            var y = x.Where(ft => ft.EndTime.CompareTo(now) < 0).ToList();
+            return y;
         }
     }
 }

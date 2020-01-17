@@ -35,8 +35,9 @@ namespace BackendLetsMeet.Models
         {
             var groupUser = context.GroupUsers.Where(ug => ug.UserId == userId).FirstOrDefault();
             if(groupUser != null)
-            {
+            {                
                 context.GroupUsers.Remove(groupUser);
+                context.SaveChanges();
             }
             return groupUser;
         }
