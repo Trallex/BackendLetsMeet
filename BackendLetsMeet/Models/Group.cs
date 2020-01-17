@@ -9,6 +9,7 @@ namespace BackendLetsMeet.Models
 {
     public class Group
     {
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public string GroupId { get; set; }
         public string EventId { get; set; }
         public ICollection<Event >Events { get; set; }

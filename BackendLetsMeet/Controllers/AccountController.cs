@@ -1,16 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 using BackendLetsMeet.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 
 namespace BackendLetsMeet.Controllers
 {
     [Route("[controller]/[action]")]
     [ApiController]
+    [AllowAnonymous]
     public class AccountController : ControllerBase
     {
         private readonly UserManager<User> userManager;
@@ -33,7 +39,24 @@ namespace BackendLetsMeet.Controllers
                 var result = await signInManager.PasswordSignInAsync(user, password, isPersistent: false, false);
                 if(result.Succeeded)
                 {
-                    return Ok();
+                    string securityKey = "super_long_security_key_pls_work_2137";
+                    var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(securityKey));
+                    var signingCredentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256Signature);
+                    var claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.NameIdentifier, user.Id)
+                };
+
+                    var token = new JwtSecurityToken(
+                          issuer: "smieszek",
+                          audience: "readers",
+                          expires: DateTime.Now.AddDays(1),
+                          signingCredentials: signingCredentials,
+                          claims: claims
+                        );
+
+                    return Ok(new JwtSecurityTokenHandler().WriteToken(token));
+
                 }
             }
             return BadRequest("Wrong username or password.");
@@ -52,10 +75,27 @@ namespace BackendLetsMeet.Controllers
             {
                 await signInManager.SignInAsync(user, isPersistent: false);
                 var x = await userManager.GetUserAsync(User);
-                //var userId = JsonConvert.SerializeObject(x.Id);
-                return Ok(x);
 
-              // var 
+                // return Ok();
+
+                string securityKey = "super_long_security_key_pls_work_2137";
+                var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(securityKey));
+                var signingCredentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256Signature);
+                var claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.NameIdentifier, user.Id)
+                };
+
+                var token = new JwtSecurityToken(
+                      issuer: "smieszek",
+                      audience: "readers",
+                      expires: DateTime.Now.AddDays(1),
+                      signingCredentials: signingCredentials,
+                      claims: claims
+                    );
+                
+                return Ok(new JwtSecurityTokenHandler().WriteToken(token));
+                // var 
             }
             return BadRequest(result.Errors);
         }
@@ -85,6 +125,7 @@ namespace BackendLetsMeet.Controllers
         [HttpGet]
         public ActionResult<string> Tos()
         {
+            string x = DateTime.Now.ToString();
             return "Terms of service.";
         }
     }

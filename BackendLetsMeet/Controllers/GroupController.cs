@@ -15,7 +15,7 @@ namespace BackendLetsMeet.Controllers
 {
     [Route("[controller]/[action]/{userId}")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
     public class GroupController : ControllerBase
     {
         private readonly UserManager<User> userManager;
@@ -45,7 +45,12 @@ namespace BackendLetsMeet.Controllers
         public IActionResult ListGroup(string userId)
         {
             var groups = groupRepository.GetUserGroups(userId);
-            var result = JsonConvert.SerializeObject(groups);
+            List<GroupEntity> groupEntities = new List<GroupEntity>();
+            foreach(Group group in groups)
+            {
+                groupEntities.Add(new GroupEntity(group));
+            }
+            var result = JsonConvert.SerializeObject(groupEntities);
             return Ok(result);
                        
         }
@@ -69,16 +74,17 @@ namespace BackendLetsMeet.Controllers
                 GroupUser groupUser = new GroupUser
                 {
                     User = user,
-                    UserId = user.Id,
-                    GroupId = group.GroupId,
+                    //UserId = user.Id,
+                    //GroupId = group.GroupId,
                     Group = group
                 };
                 group.GroupUsers.Add(groupUser);
 
 
                 groupRepository.Add(group);
-                groupUserRepository.Add(groupUser);
-                var result = JsonConvert.SerializeObject(group);
+                // groupUserRepository.Add(groupUser);
+                GroupEntity groupEntity = new GroupEntity(group);
+                var result = JsonConvert.SerializeObject(groupEntity);
                 return Ok(result);
             }
 
@@ -217,7 +223,7 @@ namespace BackendLetsMeet.Controllers
                 
                 freeTimeRepository.Add(days);
 
-                var result = JsonConvert.SerializeObject(days);
+                var result = JsonConvert.SerializeObject("lel");
                 return Ok(result);
             }
 
