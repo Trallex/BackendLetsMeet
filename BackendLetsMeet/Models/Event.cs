@@ -18,7 +18,7 @@ namespace BackendLetsMeet.Models
         public string Description { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
-        public string Localiztion { get; set; }
+        public string Localization { get; set; }
         public ICollection<IsGoing> IsGoing { get; set; }
     }
 }

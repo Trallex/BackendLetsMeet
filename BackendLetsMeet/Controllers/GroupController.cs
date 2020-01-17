@@ -347,7 +347,7 @@ namespace BackendLetsMeet.Controllers
 
         //create event
         [HttpPost]
-        public async Task<IActionResult> CreateEvent(string userId, string groupId, [FromBody]EventEntity newEvent)
+        public async Task<IActionResult> CreateEvent(string userId, string groupId, [FromForm]EventEntity newEvent)
         {
             User user = await userManager.FindByIdAsync(userId);
             Group group = groupRepository.GetGroup(groupId);
@@ -363,7 +363,7 @@ namespace BackendLetsMeet.Controllers
                     Description = newEvent.Description,
                     StartTime = newEvent.StartTime,
                     EndTime = newEvent.EndTime,
-                    Localiztion = newEvent.Localiztion
+                    Localization = newEvent.Localization
 
                 };
                 eventRepository.Add(createdEvent);
@@ -413,6 +413,36 @@ namespace BackendLetsMeet.Controllers
             return BadRequest("Event not found.");
         }
     
-        //odpowiedzi w evencie
+        //add/update event response
+        [HttpPost]
+        public async Task<IActionResult> AddEventResponse(string userId, string eventId, bool isGoing)
+        {
+            User user = await userManager.FindByIdAsync(userId);
+            Event myEvent = eventRepository.GetEvent(eventId);
+
+            if(user != null && myEvent != null)
+            {
+                IsGoing response = new IsGoing
+                {
+                    Event = myEvent,
+                    EventId = myEvent.Id,
+                    User = user,
+                    UserId = user.Id,
+                    Response = isGoing
+                };
+
+                if(isGoingRepository.FindRecord(userId, eventId) != null)
+                {
+                    isGoingRepository.Upadte(response);
+                }
+                else
+                {
+                    isGoingRepository.Create(response);
+                }
+                return Ok();
+            }
+
+            return BadRequest("user or event not found.");
+        }
     }
 }

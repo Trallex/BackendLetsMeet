@@ -9,7 +9,8 @@ namespace BackendLetsMeet.Models
     {
         IsGoing Create(IsGoing isGoing);
         List<IsGoing> FindUsers(string eventId);
-        
+        IsGoing FindRecord(string userId, string eventId);
+        IsGoing Upadte(IsGoing isGoing);
         
     }
 }

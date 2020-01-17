@@ -14,8 +14,12 @@ namespace BackendLetsMeet.DTOs
         public string Description { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
-        public string Localiztion { get; set; }
+        public string Localization { get; set; }
         public List<IsGoingEntity> IsGoing { get; set; }
+        public EventEntity()
+        {
+
+        }
         public EventEntity(Event _event, List<IsGoingEntity> isGoings)
         {
             Name = _event.Name;
@@ -24,7 +28,7 @@ namespace BackendLetsMeet.DTOs
             Description = _event.Description;
             StartTime = _event.StartTime;
             EndTime = _event.EndTime;
-            Localiztion = _event.Localiztion;
+            Localization = _event.Localization;
             IsGoing = isGoings;
         }
     }

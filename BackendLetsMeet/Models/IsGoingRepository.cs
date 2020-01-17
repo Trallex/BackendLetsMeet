@@ -22,9 +22,21 @@ namespace BackendLetsMeet.Models
             return isGoing;
         }
 
+        public IsGoing FindRecord(string userId, string eventId)
+        {
+            return context.IsGoings.Where(e => e.EventId == eventId).Where(u => u.UserId == userId).FirstOrDefault();
+        }
+
         public List<IsGoing> FindUsers(string eventId)
         {
             return context.IsGoings.Where(s => s.EventId == eventId).ToList();
+        }
+
+        public IsGoing Upadte(IsGoing isGoing)
+        {
+            context.IsGoings.Update(isGoing);
+            context.SaveChanges();
+            return isGoing;
         }
     }
 }
