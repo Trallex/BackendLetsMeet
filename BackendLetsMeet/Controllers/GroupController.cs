@@ -115,9 +115,9 @@ namespace BackendLetsMeet.Controllers
 
         //ADD USER TO GROUP
         [HttpPost]
-        public async Task<IActionResult> Join(string userId, string idInv)
+        public async Task<IActionResult> Join(string userId, string invId)
         {
-            Group group = groupRepository.GetGropByInvLink(idInv);
+            Group group = groupRepository.GetGropByInvLink(invId);
             User user = await userManager.FindByIdAsync(userId);
             if(user != null && group != null)
             {
@@ -136,7 +136,22 @@ namespace BackendLetsMeet.Controllers
                 {
                     return BadRequest("User already present in the group.");
                 }
-                
+
+                //user added to group, now he needs to be present in all events and event responses
+
+                var groupEvents = eventRepository.GetGroupEvents(group.GroupId);
+                foreach(Event groupEvent in groupEvents)
+                {
+                    IsGoing newUserResponse = new IsGoing
+                    {
+                        User = user,
+                        UserId = userId,
+                        Event = groupEvent,
+                        EventId = groupEvent.Id
+                    };
+                    isGoingRepository.Create(newUserResponse);
+                }
+
                 return Ok();
             }
 
@@ -153,8 +168,22 @@ namespace BackendLetsMeet.Controllers
             if (user != null && group != null)
             {
                 if(groupUserRepository.DeleteUser(userId, groupId) != null)
-                    return Ok();
-
+                {
+                    //user deleted, from group, now cleaning up events and responses
+                    var groupEvents = eventRepository.GetGroupEvents(group.GroupId);
+                    foreach (Event groupEvent in groupEvents)
+                    {
+                        IsGoing newUserResponse = new IsGoing
+                        {
+                            User = user,
+                            UserId = userId,
+                            Event = groupEvent,
+                            EventId = groupEvent.Id
+                        };
+                        isGoingRepository.Delete(newUserResponse);
+                    }
+                        return Ok();
+                }
             }
             return BadRequest("User or Group not found.");
         }
@@ -317,6 +346,8 @@ namespace BackendLetsMeet.Controllers
                     List<IsGoingEntity> isGoingEntities = new List<IsGoingEntity>();
                     foreach(var isGoingListResponse in isGoingList)
                     {
+                        var isGoingUser = await userManager.FindByIdAsync(isGoingListResponse.UserId);
+                        isGoingListResponse.User = isGoingUser;
                         isGoingEntities.Add(new IsGoingEntity(isGoingListResponse));
                     }
                     eventEntities.Add(new EventEntity(_event, isGoingEntities));
