@@ -10,8 +10,8 @@ namespace BackendLetsMeet.DTOs
     {
         public string Id { get; set; }
         public string UserId { get; set; }
-        public DateTime StartTime { get; set; }
-        public DateTime EndTime { get; set; }
+        public string StartTime { get; set; }
+        public string EndTime { get; set; }
         public string GroupId { get; set; }
 
 
@@ -20,8 +20,8 @@ namespace BackendLetsMeet.DTOs
         {
             Id = freeTime.Id;
             UserId = freeTime.UserId;
-            StartTime = freeTime.StartTime;
-            EndTime = freeTime.EndTime;
+            StartTime = freeTime.StartTime.ToString("yyyy-MM-dd'T'HH:mm:ss.SSS");
+            EndTime = freeTime.EndTime.ToString("yyyy-MM-dd'T'HH:mm:ss.SSS");
             GroupId = freeTime.GroupId;
         }
     }

@@ -31,9 +31,9 @@ namespace BackendLetsMeet.Models
             }
         }
 
-        public GroupUser DeleteUser(string userId)
+        public GroupUser DeleteUser(string userId, string groupId)
         {
-            var groupUser = context.GroupUsers.Where(ug => ug.UserId == userId).FirstOrDefault();
+            var groupUser = context.GroupUsers.Where(ug => ug.UserId == userId).Where(g => g.GroupId ==groupId).FirstOrDefault();
             if(groupUser != null)
             {                
                 context.GroupUsers.Remove(groupUser);

@@ -58,8 +58,8 @@ namespace BackendLetsMeet.Controllers
 
                 groupEntities.Add(new GroupEntity(group, userEntities));
             }
-            var result = JsonConvert.SerializeObject(groupEntities);
-            return Ok(result);
+            var result = JsonConvert.SerializeObject(groupEntities, Formatting.Indented);
+            return Content(result);
                        
         }
 
@@ -107,8 +107,8 @@ namespace BackendLetsMeet.Controllers
             Group group = groupRepository.GetGroup(groupId);
             if(group != null)
             {
-                var result = JsonConvert.SerializeObject(group);
-                return Ok(result);
+                var result = JsonConvert.SerializeObject(group, Formatting.Indented);
+                return Content(result);
             }
             return BadRequest("Group not found.");
         }
@@ -152,25 +152,26 @@ namespace BackendLetsMeet.Controllers
             User user = await userManager.FindByIdAsync(userId);
             if (user != null && group != null)
             {
-                if(groupUserRepository.DeleteUser(user.Id) != null) return Ok();
+                if(groupUserRepository.DeleteUser(userId, groupId) != null)
+                    return Ok();
 
             }
             return BadRequest("User or Group not found.");
         }
 
         //return users and their free time
-        [HttpGet]
-        public IActionResult GetFreeTime(string userId, string groupId)
-        {
-            var users = groupUserRepository.GetGroupUsers(groupId);
-            if(users.Where(u => u.UserId == userId) != null)
-            {
-                // var freeTime = freeTimeRepository.GetGroupFreeTime(groupId);
-                // var result = JsonConvert.SerializeObject(freeTime);
-                return Ok();//result);
-            }            
-            return BadRequest("User not in th group");
-        }
+        //[HttpGet]
+        //public IActionResult GetFreeTime(string userId, string groupId)
+        //{
+        //    var users = groupUserRepository.GetGroupUsers(groupId);
+        //    if(users.Where(u => u.UserId == userId) != null)
+        //    {
+        //        // var freeTime = freeTimeRepository.GetGroupFreeTime(groupId);
+        //        // var result = JsonConvert.SerializeObject(freeTime);
+        //        return Ok();//result);
+        //    }            
+        //    return BadRequest("User not in th group");
+        //}
 
         //add free time AND RETURN object
         [HttpPost]
@@ -243,8 +244,8 @@ namespace BackendLetsMeet.Controllers
                 
                 freeTimeRepository.Add(freeTime);
                 FreeTimeEntity res = new FreeTimeEntity(freeTime);
-                var result = JsonConvert.SerializeObject(res);
-                return Ok(result);
+                var result = JsonConvert.SerializeObject(res, Formatting.Indented);
+                return Content(result);
             }
 
             return BadRequest("User or Group not found.");
@@ -288,8 +289,8 @@ namespace BackendLetsMeet.Controllers
                     groupEntities.Add(new GroupEntity(group, new List<UserEntity> { userEntity }));
                 }
 
-                var result = JsonConvert.SerializeObject(groupEntities);
-                return Ok(result);
+                var result = JsonConvert.SerializeObject(groupEntities, Formatting.Indented);
+                return Content(result);
             }
             return BadRequest("User not found.");
         }
@@ -320,8 +321,8 @@ namespace BackendLetsMeet.Controllers
                     }
                     eventEntities.Add(new EventEntity(_event, isGoingEntities));
                 }
-                var result = JsonConvert.SerializeObject(eventEntities);
-                return Ok(result);
+                var result = JsonConvert.SerializeObject(eventEntities, Formatting.Indented);
+                return Content(result);
             }
             return BadRequest("User not found.");
         }
@@ -339,8 +340,8 @@ namespace BackendLetsMeet.Controllers
                 var groupEvents = eventRepository.GetGroupEvents(groupId);
                 events.AddRange(groupEvents);
 
-                var result = JsonConvert.SerializeObject(events);
-                return Ok(result);
+                var result = JsonConvert.SerializeObject(events, Formatting.Indented);
+                return Content(result);
             }
             return BadRequest("Group not found.");
         }
@@ -407,8 +408,8 @@ namespace BackendLetsMeet.Controllers
            Event myEvent  = eventRepository.GetEvent(eventId);
             if(myEvent != null)
             {
-                var result = JsonConvert.SerializeObject(myEvent);
-                return Ok(result);
+                var result = JsonConvert.SerializeObject(myEvent, Formatting.Indented);
+                return Content(result);
             }
             return BadRequest("Event not found.");
         }
@@ -430,15 +431,14 @@ namespace BackendLetsMeet.Controllers
                     UserId = user.Id,
                     Response = isGoing
                 };
-
-                if(isGoingRepository.FindRecord(userId, eventId) != null)
+                var searchIsGoing = isGoingRepository.FindRecord(userId, eventId);
+                if (searchIsGoing != null)
                 {
-                    isGoingRepository.Upadte(response);
+                    
+                    isGoingRepository.Delete(searchIsGoing);
                 }
-                else
-                {
-                    isGoingRepository.Create(response);
-                }
+                
+                isGoingRepository.Create(response);               
                 return Ok();
             }
 

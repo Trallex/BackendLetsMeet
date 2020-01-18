@@ -41,14 +41,14 @@ namespace BackendLetsMeet.Models
         public List<FreeTime> GetUserFreeTime(string userId)
         {
             DateTime now = DateTime.Now;
-            return context.FreeTime.Where( u => u.UserId == userId).Where(ft => ft.EndTime > now).ToList();
+            return context.FreeTime.Where( u => u.UserId == userId).Where(ft => ft.EndTime.CompareTo(now) > 0).ToList();
         }
 
         public List<FreeTime> GetGroupUserFreeTime(string groupId, string userId)
         {
             DateTime now = DateTime.Now;
             var x = context.FreeTime.Where(g => g.GroupId == groupId).Where(u => u.UserId == userId);
-            var y = x.Where(ft => ft.EndTime.CompareTo(now) < 0).ToList();
+            var y = x.Where(ft => ft.EndTime.CompareTo(now) > 0).ToList();
             return y;
         }
     }

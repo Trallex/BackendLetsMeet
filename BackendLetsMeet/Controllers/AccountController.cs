@@ -55,8 +55,12 @@ namespace BackendLetsMeet.Controllers
                           claims: claims
                         );
                     string tokenString = new JwtSecurityTokenHandler().WriteToken(token).ToString();
-                    var resultOutput = JsonConvert.SerializeObject(new UserTokenEntity(tokenString, user));
-                    return Ok(resultOutput);
+                    var resultOutput = new UserTokenEntity(tokenString, user);
+                    var resultOutputJSON = JsonConvert.SerializeObject(resultOutput , Formatting.Indented);
+
+
+                    //    JsonConvert.SerializeObject(resultOutput);
+                   return Content(resultOutputJSON);
                 }
             }
             return BadRequest("Wrong username or password.");
@@ -93,8 +97,8 @@ namespace BackendLetsMeet.Controllers
                       claims: claims
                     );
                 string tokenString = new JwtSecurityTokenHandler().WriteToken(token).ToString();
-                var resultOutput = JsonConvert.SerializeObject(new UserTokenEntity(tokenString, user));
-                return Ok(resultOutput);
+                var resultOutput = JsonConvert.SerializeObject( new UserTokenEntity(tokenString, user) , Formatting.Indented);
+                return Content(resultOutput);
                 // var 
             }
             return BadRequest(result.Errors);

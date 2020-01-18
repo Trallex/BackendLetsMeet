@@ -8,6 +8,7 @@ namespace BackendLetsMeet.DTOs
 {
     public class EventEntity
     {
+        public string Id { get; set; }
         public string Name { get; set; }
         public string GroupName { get; set; }
         public string GroupId { get; set; }
@@ -22,6 +23,7 @@ namespace BackendLetsMeet.DTOs
         }
         public EventEntity(Event _event, List<IsGoingEntity> isGoings)
         {
+            Id = _event.Id;
             Name = _event.Name;
             GroupName = _event.Group.Name;
             GroupId = _event.Group.GroupId;

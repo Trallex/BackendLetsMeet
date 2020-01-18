@@ -32,9 +32,11 @@ namespace BackendLetsMeet.Models
             return context.IsGoings.Where(s => s.EventId == eventId).ToList();
         }
 
-        public IsGoing Upadte(IsGoing isGoing)
+        public IsGoing Delete(IsGoing isGoing)
         {
-            context.IsGoings.Update(isGoing);
+
+            context.IsGoings.Remove(isGoing);
+
             context.SaveChanges();
             return isGoing;
         }

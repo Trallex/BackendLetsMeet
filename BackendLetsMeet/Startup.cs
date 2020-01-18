@@ -35,7 +35,7 @@ namespace BackendLetsMeet
             string securityKey = "super_long_security_key_pls_work_2137";
             var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(securityKey));
             
-            services.AddDbContextPool<AppDBContext>(options => options.UseSqlServer(Configuration.GetConnectionString("LetsMeetDBConnection")));
+            services.AddDbContextPool<AppDBContext>(options => options.UseSqlServer(Configuration.GetConnectionString("BackendDb")));
             
 
             services.AddIdentity<User, IdentityRole>()
@@ -87,8 +87,8 @@ namespace BackendLetsMeet
                 var context = serviceScope.ServiceProvider.GetService<AppDBContext>();
                 context.Database.EnsureCreated();
             }
-            app.UseStaticFiles();
-            app.UseHttpsRedirection();
+            //app.UseStaticFiles();
+            //app.UseHttpsRedirection();
 
             app.UseAuthentication();
 
